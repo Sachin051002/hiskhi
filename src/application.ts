@@ -3,10 +3,7 @@ import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
 import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
-import {
-  RestExplorerBindings,
-  RestExplorerComponent,
-} from '@loopback/rest-explorer';
+import {RestExplorerBindings, RestExplorerComponent} from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import * as dotenv from 'dotenv';
 import path from 'path';
@@ -23,7 +20,17 @@ export class HiskhiApplication extends BootMixin(
 
     // Load environment variables from .env
     dotenv.config({
-      path: path.resolve(__dirname, '../.env'), // Ensure the .env file is loaded
+      path: path.resolve(__dirname, '../.env'),
+    });
+
+    // Enable CORS through the RestServer configuration
+    this.configure('rest').to({
+      cors: {
+        origin: '*',  // Replace '*' with your domain for production
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true,
+      },
     });
 
     // Set up the custom sequence
@@ -49,7 +56,6 @@ export class HiskhiApplication extends BootMixin(
     // Customize @loopback/boot Booter Conventions here
     this.bootOptions = {
       controllers: {
-        // Customize ControllerBooter Conventions here
         dirs: ['controllers'],
         extensions: ['.controller.js'],
         nested: true,
@@ -60,7 +66,7 @@ export class HiskhiApplication extends BootMixin(
 
 export async function main(options: ApplicationConfig = {}) {
   dotenv.config({
-    path: path.resolve(__dirname, '../.env'), // Ensure .env is loaded in the main function
+    path: path.resolve(__dirname, '../.env'),
   });
 
   const app = new HiskhiApplication(options);
